@@ -17,14 +17,18 @@
 /*
  * 
  */
+interrupt pushed(void){
+    
+}
 int main(void) {
+
 glcd_Init(GLCD_ON);
 while(1)
 { // Clear the screen
-glcd_FillScreen(0);
-// Set the cursor and write a string
-glcd_SetCursor(1, 0);
-glcd_WriteString("HELLO !", f8X8, 1);
+    glcd_FillScreen(0);
+    // Set the cursor and write a string
+
+
     }
 }
 

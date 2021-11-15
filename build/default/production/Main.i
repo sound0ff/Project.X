@@ -6311,9 +6311,9 @@ int main(void) {
 glcd_Init(1);
 while(1)
 {
-glcd_FillScreen(0);
+    glcd_FillScreen(0);
 
-glcd_SetCursor(1, 0);
-glcd_WriteString("HELLO !", 1, 1);
+
+
     }
 }
