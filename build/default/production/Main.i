@@ -6280,7 +6280,11 @@ int toupper_l(int, locale_t);
 int isascii(int);
 int toascii(int);
 # 6 "./glcd.h" 2
-# 43 "./glcd.h"
+# 41 "./glcd.h"
+const unsigned char MENU [1024];
+const unsigned char CREDITS [1024];
+
+
 extern void glcd_Init(unsigned char mode);
 extern void glcd_WriteByte(unsigned char side, unsigned char data);
 extern unsigned char glcd_ReadByte(unsigned char side);
@@ -6291,29 +6295,124 @@ extern void glcd_FillScreen(unsigned char color);
 extern void glcd_WriteChar8X8( unsigned char ch, unsigned char color);
 extern void glcd_WriteChar3x6( unsigned char ch, unsigned char color);
 extern void glcd_WriteString(const char str[],unsigned char font,unsigned char color);
-extern void glcd_Image(void);
+extern void glcd_Image(const unsigned char*);
 void glcd_text_write(const char str[], unsigned char x, unsigned char y);
 # 7 "Main.c" 2
 
 
 
 
+
 #pragma config FOSC = HS
 #pragma config PWRT = OFF
+#pragma config LVP = OFF
+#pragma config MCLRE = ON
 #pragma config BOR = OFF
 #pragma config WDT = OFF
-#pragma config LVP = OFF
-#pragma config DEBUG = ON
+#pragma config DEBUG = OFF
+#pragma config PBADEN =OFF
 
 
+
+
+volatile int value = 0;
+volatile int posX = 56;
+volatile int posY = 30;
+void Delay_Ms(unsigned int ms) {
+    int i, count;
+    for (i = 1; i <= ms; i++) {
+        count = 150;
+        while (count != 1) {
+            count--;
+        }
+    }
+}
+
+void bruit() {
+    int i;
+    for (i = 0; i < 50; i++) {
+        LATEbits.LATE1 = 1;
+        Delay_Ms(1);
+        LATEbits.LATE1 = 0;
+        Delay_Ms(1);
+    }
+}
+
+void exec(void) {
+    if ((PORTCbits.RC0) ){
+        bruit();
+        if (value == 0)value = 1;
+        else if (value==1) value = 0;
+    }
+    if (PORTAbits.RA0) {
+        bruit();
+        if (posY==30){
+            posY=44;
+        }
+    }
+    if(PORTAbits.RA1) {
+        bruit();
+        if (posY==44){
+            posY=30;
+        }
+    }
+    if(PORTAbits.RA5) {
+        bruit();
+        if (value == 2){
+            value = 1;
+        }
+        else if ((posY==44) && (value ==1)){
+            value=2;
+        }
+    }
+    INTCONbits.TMR0IF = 0;
+}
+
+void __attribute__((picinterrupt(("")))) pushed(void) {
+    if (INTCONbits.TMR0IF == 1) {
+        exec();
+    }
+}
+
+void init() {
+    TRISEbits.TRISE1 = 0;
+    TRISCbits.TRISC0 = 1;
+    TRISAbits.TRISA0 = 1;
+    TRISAbits.TRISA1 = 1;
+    TRISAbits.TRISA2 = 1;
+    TRISAbits.TRISA3 = 1;
+    TRISAbits.TRISA5 = 1;
+    PORTA = 0x0;
+    PORTC = 0x0;
+    T0CONbits.TMR0ON = 1;
+    T0CONbits.T08BIT = 0;
+    T0CONbits.T0CS = 0;
+    T0CONbits.PSA = 0;
+    T0CONbits.T0PS2 = 0;
+    T0CONbits.T0PS1 = 1;
+    T0CONbits.T0PS0 = 0;
+
+    INTCONbits.GIE = 1;
+    INTCONbits.TMR0IE = 1;
+    TMR0 = 0x0;
+}
 
 int main(void) {
-glcd_Init(1);
-while(1)
-{
+
+    glcd_Init(1);
+    init();
     glcd_FillScreen(0);
+    while (1) {
 
-
-
+        if (value == 1) {
+            glcd_Image(MENU);
+            glcd_Rect(posX, posY, posX+37, posY+9 ,1);
+        }
+        if (value==0){
+            glcd_FillScreen(0);
+        }
+        if (value==2){
+            glcd_Image(CREDITS);
+        }
     }
 }

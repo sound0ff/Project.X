@@ -38,6 +38,8 @@
 #define		f3X6				0
 #define		f8X8				1
 
+const unsigned char MENU [1024];
+const unsigned char CREDITS [1024];
 
 
 extern void glcd_Init(unsigned char mode);
@@ -50,7 +52,7 @@ extern void glcd_FillScreen(unsigned char color);
 extern void glcd_WriteChar8X8( unsigned char ch, unsigned char color);
 extern void glcd_WriteChar3x6( unsigned char ch, unsigned char color);
 extern void glcd_WriteString(const char str[],unsigned char font,unsigned char color);
-extern void glcd_Image(void);
+extern void glcd_Image(const unsigned char*);
 void glcd_text_write(const char str[], unsigned char x, unsigned char y);
 
 #endif /* ! _GLCD_H_ */
